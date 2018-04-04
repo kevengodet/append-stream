@@ -1,0 +1,19 @@
+{
+    "name": "keven/append-stream",
+    "description": "Append stream resources into a single stream to read from.",
+    "license": "mit",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Keven Godet",
+            "email": "contact@keven.fr",
+            "homepage": "http://keven.fr",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Keven\\StreamAppend\\": "src"
+        }
+    }
+}
