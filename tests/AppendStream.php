@@ -19,7 +19,7 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
     function testAppendOneStream()
     {
         $stream = new AppendStream;
-        $stream->append($this->createStream('test1'));
+        $stream->append(fopen('data://text/plain,test1','r'));
         $resource = $stream->getResource();
 
         $this->assertTrue(is_resource($resource));
@@ -29,7 +29,7 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
 
     function testConstructOneStream()
     {
-        $stream = new AppendStream([$this->createStream('test2')]);
+        $stream = new AppendStream([fopen('data://text/plain,test2','r')]);
         $resource = $stream->getResource();
 
         $this->assertTrue(is_resource($resource));
@@ -40,8 +40,8 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
     function testAppendSeveralStreams()
     {
         $stream = new AppendStream;
-        $stream->append($this->createStream('test3'));
-        $stream->append($this->createStream('test4'));
+        $stream->append(fopen('data://text/plain,test3','r'));
+        $stream->append(fopen('data://text/plain,test4','r'));
         $resource = $stream->getResource();
 
         $this->assertTrue(is_resource($resource));
@@ -52,8 +52,8 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
     function testConstructSeveralStreams()
     {
         $stream = new AppendStream([
-            $this->createStream('test3'),
-            $this->createStream('test4'),
+            fopen('data://text/plain,test3','r'),
+            fopen('data://text/plain,test4','r'),
         ]);
         $resource = $stream->getResource();
 
@@ -94,14 +94,5 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
     {
         $stream = new AppendStream;
         $stream->append(stream_context_create());
-    }
-
-    function createStream($content)
-    {
-        $handle = fopen('php://memory', 'r+w');
-        fwrite($handle, $content);
-        rewind($handle);
-
-        return $handle;
     }
 }
