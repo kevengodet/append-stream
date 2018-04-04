@@ -62,6 +62,40 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('test3test4', stream_get_contents($resource));
     }
 
+    /**
+     * @expectedException \Keven\AppendStream\InvalidStreamException
+     */
+    function testConstructResourceOnly()
+    {
+        new AppendStream([new \stdclass]);
+    }
+
+    /**
+     * @expectedException \Keven\AppendStream\InvalidStreamException
+     */
+    function testAppendResourceOnly()
+    {
+        $stream = new AppendStream;
+        $stream->append(new \stdclass);
+    }
+
+    /**
+     * @expectedException \Keven\AppendStream\InvalidStreamException
+     */
+    function testConstructStreamOnly()
+    {
+        new AppendStream([stream_context_create()]);
+    }
+
+    /**
+     * @expectedException \Keven\AppendStream\InvalidStreamException
+     */
+    function testAppendStreamOnly()
+    {
+        $stream = new AppendStream;
+        $stream->append(stream_context_create());
+    }
+
     function createStream($content)
     {
         $handle = fopen('php://memory', 'r+w');

@@ -18,11 +18,11 @@ final class AppendStream
     public function append($stream): void
     {
         if (!is_resource($stream)) {
-            throw InvalidStreamException::fromVar($var);
+            throw InvalidStreamException::fromVar($stream);
         }
 
         if (get_resource_type($stream) !== 'stream') {
-            throw InvalidStreamException::fromVar($var);
+            throw InvalidStreamException::fromVar($stream);
         }
 
         $this->streams[] = $stream;

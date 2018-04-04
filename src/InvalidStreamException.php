@@ -1,8 +1,8 @@
 <?php
 
-namespace Keven\StreamAppend;
+namespace Keven\AppendStream;
 
-final class InvalidStreamException
+final class InvalidStreamException extends \InvalidArgumentException
 {
     public static function fromVar($var): InvalidStreamException
     {
