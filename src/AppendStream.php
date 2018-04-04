@@ -31,9 +31,18 @@ final class AppendStream
     /** @return resource */
     public function getResource()
     {
-        $streams = $this->streams;
+        if (!$this->streams) {
+            return fopen('data://text/plain,','r');
+        }
 
-        $anonymous = new class($streams) extends \php_user_filter
+        if (count($this->streams) == 1) {
+            return reset($this->streams);
+        }
+
+        $head = array_shift($this->streams);
+        $tail = $this->streams;
+
+        $anonymous = new class($tail) extends \php_user_filter
         {
             private static $streams = [];
 
@@ -73,10 +82,8 @@ final class AppendStream
         };
 
         stream_filter_register($filter = bin2hex(random_bytes(32)), get_class($anonymous));
+        stream_filter_append($head, $filter);
 
-        $handle = fopen('php://memory', 'r');
-        stream_filter_append($handle, $filter);
-
-        return $handle;
+        return $head;
     }
 }
