@@ -1,17 +1,6 @@
-# keven/append-stream
-
-Concatenate streams without bloating the memory.
-
-## Install
-
-```shell
-$ composer install keven/append-stream
-```
-
-## Usage
-
-```php
 <?php
+
+require_once __DIR__.'/../vendor/autoload.php';
 
 use Keven\AppendStream\AppendStream;
 
@@ -24,4 +13,3 @@ $handle = (new AppendStream([
 
 echo stream_get_contents($handle);
 // stream1stream2stream3
-```
