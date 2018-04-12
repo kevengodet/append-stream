@@ -7,11 +7,15 @@ final class AppendStream
     /** @var resource[] */
     private $streams = [];
 
-    public function __construct(iterable $streams = [])
+    /** @var int */
+    private $chunkSize;
+
+    public function __construct(iterable $streams = [], int $chunkSize = 1024)
     {
         foreach ($streams as $stream) {
             $this->append($stream);
         }
+        $this->chunkSize = $chunkSize;
     }
 
     /** @param resource $stream */
@@ -39,16 +43,17 @@ final class AppendStream
             return reset($this->streams);
         }
 
-        $head = array_shift($this->streams);
-        $tail = $this->streams;
+        $head = fopen('data://text/plain,','r');;
 
-        $anonymous = new class($tail) extends \php_user_filter
+        $anonymous = new class($this->streams, $this->chunkSize) extends \php_user_filter
         {
             private static $streams = [];
+            private static $maxLength;
 
-            public function __construct(array $streams = [])
+            public function __construct(array $streams = [], int $maxLength = 1024)
             {
-                self::$streams = $streams;
+                self::$streams   = $streams;
+                self::$maxLength = $maxLength;
             }
 
             /**
@@ -60,19 +65,13 @@ final class AppendStream
              */
             public function filter($in, $out, &$consumed, $closing)
             {
-                $maxLength = 1024;
-
                 while ($bucket = stream_bucket_make_writeable($in)) {
-                    $consumed += $bucket->datalen;
-                    $maxLength = max($maxLength, $bucket->datalen);
                     stream_bucket_append($out, $bucket);
                 }
 
-                $stream = fopen('php://memory', 'r');
                 foreach (self::$streams as $stream) {
                     while (feof($stream) !== true) {
-                        $bucket = stream_bucket_new($stream, fgets($stream, $maxLength));
-                        $consumed += $bucket->datalen;
+                        $bucket = stream_bucket_new($stream, fread($stream, self::$maxLength));
                         stream_bucket_append($out, $bucket);
                     }
                 }
