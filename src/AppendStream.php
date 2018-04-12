@@ -10,7 +10,7 @@ final class AppendStream
     /** @var int */
     private $chunkSize;
 
-    public function __construct(iterable $streams = [], int $chunkSize = 1024)
+    public function __construct(iterable $streams = [], int $chunkSize = 8192)
     {
         foreach ($streams as $stream) {
             $this->append($stream);
@@ -43,14 +43,15 @@ final class AppendStream
             return reset($this->streams);
         }
 
-        $head = fopen('data://text/plain,','r');;
+        $head = fopen('php://temp','wb');
+        fwrite($head, ' ');
 
         $anonymous = new class($this->streams, $this->chunkSize) extends \php_user_filter
         {
             private static $streams = [];
             private static $maxLength;
 
-            public function __construct(array $streams = [], int $maxLength = 1024)
+            public function __construct(array $streams = [], int $maxLength = 8192)
             {
                 self::$streams   = $streams;
                 self::$maxLength = $maxLength;
@@ -65,10 +66,6 @@ final class AppendStream
              */
             public function filter($in, $out, &$consumed, $closing)
             {
-                while ($bucket = stream_bucket_make_writeable($in)) {
-                    stream_bucket_append($out, $bucket);
-                }
-
                 foreach (self::$streams as $stream) {
                     while (feof($stream) !== true) {
                         $bucket = stream_bucket_new($stream, fread($stream, self::$maxLength));

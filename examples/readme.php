@@ -11,5 +11,5 @@ $handle = (new AppendStream([
     fopen('data://text/plain,stream3','r'),
 ]))->getResource();
 
-echo stream_get_contents($handle);
+echo stream_get_contents($handle)."\n";
 // stream1stream2stream3

@@ -89,6 +89,26 @@ class AppendStreamTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals("$s1$s2$s3", $s = stream_get_contents($resource));
     }
 
+    function testStreamCopyToStream()
+    {
+        $stream = new AppendStream([
+            fopen('data://text/plain,test5','r'),
+            fopen('data://text/plain,test6','r'),
+        ], 8);
+        $resource = $stream->getResource();
+
+        $this->assertTrue(is_resource($resource));
+        $this->assertEquals('stream', get_resource_type($resource));
+
+        $sink = fopen('php://memory', 'wb');
+        $bytesCopied = stream_copy_to_stream($resource, $sink);
+        rewind($sink);
+
+        $this->assertEquals(10, $bytesCopied);
+        $this->assertEquals('test5test6', stream_get_contents($sink));
+
+    }
+
     /**
      * @expectedException \Keven\AppendStream\InvalidStreamException
      */
