@@ -43,8 +43,9 @@ final class AppendStream
             return reset($this->streams);
         }
 
-        $head = fopen('php://temp','wb');
-        fwrite($head, ' ');
+        $head = tmpfile();
+        fwrite($head, fread($this->streams[0], 8192));
+        rewind($head);
 
         $anonymous = new class($this->streams, $this->chunkSize) extends \php_user_filter
         {
@@ -66,6 +67,10 @@ final class AppendStream
              */
             public function filter($in, $out, &$consumed, $closing)
             {
+                while ($bucket = stream_bucket_make_writeable($in)) {
+                    stream_bucket_append($out, $bucket);
+                }
+
                 foreach (self::$streams as $stream) {
                     while (feof($stream) !== true) {
                         $bucket = stream_bucket_new($stream, fread($stream, self::$maxLength));
